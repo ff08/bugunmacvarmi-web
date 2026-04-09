@@ -1,0 +1,6 @@
+# https://bugunmacvarmi.com
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://bugunmacvarmi.com/sitemap.xml
