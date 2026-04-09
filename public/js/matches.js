@@ -9,7 +9,6 @@
   const GID_FOOTBALL = "0";
   const GID_BASKETBALL = "48872055";
   const PAST_THRESHOLD_MIN = 90;
-  const THEME_KEY = "bmv:home-theme:v1";
 
   function buildUrl(gid) {
     return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq&gid=${encodeURIComponent(gid)}`;
@@ -72,23 +71,93 @@
       .join("");
   }
 
+  const HDR_HIDDEN_CLASS = "hdr--hidden";
+  const MOBILE_HEADER_MQ = "(max-width: 640px)";
+
+  function initMobileHeaderScroll() {
+    const hdr = document.querySelector(".hdr");
+    if (!hdr) return;
+
+    const mq = window.matchMedia(MOBILE_HEADER_MQ);
+    let lastY = window.scrollY || document.documentElement.scrollTop;
+    let ticking = false;
+
+    function apply() {
+      ticking = false;
+      if (!mq.matches) {
+        hdr.classList.remove(HDR_HIDDEN_CLASS);
+        lastY = window.scrollY || document.documentElement.scrollTop;
+        return;
+      }
+
+      const y = window.scrollY || document.documentElement.scrollTop;
+      const dy = y - lastY;
+      lastY = y;
+
+      if (y < 12) {
+        hdr.classList.remove(HDR_HIDDEN_CLASS);
+        return;
+      }
+
+      if (dy > 4) {
+        hdr.classList.add(HDR_HIDDEN_CLASS);
+      } else if (dy < -4) {
+        hdr.classList.remove(HDR_HIDDEN_CLASS);
+      }
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    mq.addEventListener("change", () => {
+      if (!mq.matches) hdr.classList.remove(HDR_HIDDEN_CLASS);
+    });
+  }
+
   function initMain() {
     const currentTbody = document.getElementById("currentTbody");
     if (!currentTbody) return;
 
     let currentGid = GID_FOOTBALL;
 
+    setHeaderDate();
+    setTimezoneInfo();
+
+    function setHeaderDate() {
+      const el = document.getElementById("headerDate");
+      if (!el) return;
+      el.textContent = new Intl.DateTimeFormat("tr-TR", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(new Date());
+    }
+
     function setTimezoneInfo() {
       const offsetMinutes = new Date().getTimezoneOffset();
       const offsetHours = -offsetMinutes / 60;
       const off = offsetHours % 1 === 0 ? String(offsetHours) : offsetHours.toFixed(1).replace(/\.0$/, "");
+      const gmt = `GMT${offsetHours >= 0 ? "+" : ""}${off}`;
+      let tzId = "";
+      try {
+        tzId = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+      } catch {
+        /* ignore */
+      }
       const tzInfo = document.getElementById("tzInfo");
       if (tzInfo) {
-        tzInfo.textContent = `Maç saatleri yerel saatinize göre listelenir. (GMT${offsetHours >= 0 ? "+" : ""}${off})`;
+        tzInfo.textContent = `Maç saatleri yerel saatinize göre listelenir. (${gmt})`;
       }
       const hdr = document.getElementById("tzHeader");
       if (hdr) {
-        hdr.textContent = `Saatler yerel saatinize göre. (GMT${offsetHours >= 0 ? "+" : ""}${off})`;
+        hdr.textContent = tzId
+          ? `Yerel saat dilimi: ${tzId} (${gmt})`
+          : `Yerel saat dilimi: ${gmt}`;
       }
     }
 
@@ -188,49 +257,27 @@
       load().catch((err) => showError(err?.message || "Bir hata oluştu"));
     });
 
-    const themeBtn = document.getElementById("themeBtn");
-    let dark = false;
-
-    function applyTheme() {
-      document.body.classList.toggle("dark", dark);
-      if (themeBtn) themeBtn.textContent = dark ? "Açık Mod" : "Koyu Mod";
-      try {
-        localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
-      } catch {
-        /* ignore */
-      }
-    }
-
-    if (themeBtn) {
-      try {
-        const saved = localStorage.getItem(THEME_KEY);
-        dark = saved === "dark";
-      } catch {
-        /* ignore */
-      }
-      applyTheme();
-
-      themeBtn.addEventListener("click", () => {
-        dark = !dark;
-        applyTheme();
-      });
-    }
-
     load().catch((err) => {
       console.error(err);
       showError(err?.message || "Bir hata oluştu");
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initMain);
-  } else {
+  function boot() {
     initMain();
+    initMobileHeaderScroll();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
   }
 
   window.BugunMacVarMi = {
     version: "1",
     initMain,
+    initMobileHeaderScroll,
     buildUrl,
     SHEET_ID,
     GID_FOOTBALL,

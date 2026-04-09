@@ -38,7 +38,7 @@
     />
     <style>
       :root {
-        color-scheme: light dark;
+        color-scheme: light;
       }
 
       body {
@@ -48,11 +48,6 @@
         line-height: 1.5;
         background: #f9f9f9;
         color: #0f172a;
-      }
-
-      body.dark {
-        background: #020617;
-        color: #e2e8f0;
       }
 
       .wrap {
@@ -70,11 +65,6 @@
         backdrop-filter: blur(8px);
       }
 
-      body.dark .hdr {
-        border-bottom-color: rgba(51, 65, 85, 0.55);
-        background: rgba(2, 6, 23, 0.55);
-      }
-
       h1 {
         font-size: 18px;
         margin: 0;
@@ -88,29 +78,20 @@
         margin-top: 4px;
       }
 
-      body.dark .sub {
-        color: rgba(148, 163, 184, 1);
-      }
-
       button,
       .btn {
         font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       }
 
       .btn {
-        border: 1px solid rgba(148, 163, 184, 0.8);
-        background: rgba(255, 255, 255, 0.9);
-        color: inherit;
+        border: 1px solid rgba(163, 193, 38, 0.35);
+        background: #121211;
+        color: #a3c126;
         padding: 8px 10px;
         border-radius: 10px;
         font-weight: 800;
         font-size: 12px;
         cursor: pointer;
-      }
-
-      body.dark .btn {
-        border-color: rgba(51, 65, 85, 0.9);
-        background: rgba(15, 23, 42, 0.7);
       }
 
       .card {
@@ -123,12 +104,6 @@
           0 4px 4px 0 #d3d3d30f,
           0 1px 1px 0 #0e0e0e0e;
         padding: 14px 14px;
-      }
-
-      body.dark .card {
-        border-color: rgba(51, 65, 85, 0.6);
-        background: rgba(15, 23, 42, 0.6);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
       }
 
       h2 {
@@ -150,10 +125,6 @@
         border-top: 1px solid rgba(148, 163, 184, 0.35);
         margin-top: 16px;
         padding-top: 12px;
-      }
-
-      body.dark footer {
-        border-top-color: rgba(51, 65, 85, 0.55);
       }
 
       .fnav {
@@ -230,7 +201,7 @@
         <ul>
           <li>Maç listesini görüntülemek</li>
           <li>Performans ve güvenlik (ör. kötüye kullanımın engellenmesi)</li>
-          <li>Kullanıcı deneyimi (ör. tema tercihi)</li>
+          <li>Kullanıcı deneyimi</li>
         </ul>
 
         <h2 style="margin-top: 14px">Üçüncü Taraflar</h2>
@@ -247,19 +218,18 @@
           ve “çerez benzeri” çalışan bir saklama alanıdır.
         </p>
         <ul>
-          <li><strong>Tema tercihi</strong> (koyu/açık)</li>
           <li><strong>Performans/önbellek</strong>: sayfanın daha hızlı açılması için kısa süreli veri saklama</li>
         </ul>
         <p>
-          Tarayıcı ayarlarınızdan yerel depolama verilerini silebilir veya engelleyebilirsiniz. Yerel depolamayı engellerseniz tema tercihi ve
-          performans iyileştirmeleri çalışmayabilir.
+          Tarayıcı ayarlarınızdan yerel depolama verilerini silebilir veya engelleyebilirsiniz. Yerel depolamayı engellerseniz performans
+          iyileştirmeleri çalışmayabilir.
         </p>
       </div>
 
       <div class="card">
         <h2>Saklama Süresi</h2>
         <p>
-          Yerel depolamada tutulan tercihler (ör. tema) siz silene kadar veya tarayıcınız bu verileri temizleyene kadar kalabilir. Sunucu tarafı
+          Yerel depolamada tutulan veriler siz silene kadar veya tarayıcınız bu verileri temizleyene kadar kalabilir. Sunucu tarafı
           loglar (varsa) güvenlik ve hata ayıklama amacıyla makul sürelerle saklanabilir.
         </p>
       </div>
@@ -282,35 +252,9 @@
             <span style="opacity:.35">•</span>
             <a href="/politikalar.html" aria-current="page">Politikalar</a>
           </div>
-          <button id="themeBtn" class="btn" type="button">Koyu Mod</button>
         </div>
       </footer>
     </main>
-
-    <script>
-      const THEME_KEY = "bmv:home-theme:v1";
-      const themeBtn = document.getElementById("themeBtn");
-      let dark = false;
-
-      function applyTheme() {
-        document.body.classList.toggle("dark", dark);
-        themeBtn.textContent = dark ? "Açık Mod" : "Koyu Mod";
-        try {
-          localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
-        } catch {}
-      }
-
-      try {
-        const saved = localStorage.getItem(THEME_KEY);
-        dark = saved === "dark";
-      } catch {}
-      applyTheme();
-
-      themeBtn.addEventListener("click", () => {
-        dark = !dark;
-        applyTheme();
-      });
-    </script>
   </body>
 </html>
 
