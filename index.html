@@ -118,24 +118,6 @@
         box-shadow: 0 10px 22px rgba(79, 70, 229, 0.25);
       }
 
-      .input {
-        width: 100%;
-        max-width: 300px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: rgba(255, 255, 255, 0.9);
-        color: inherit;
-        padding: 9px 10px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 12px;
-        outline: none;
-      }
-
-      body.dark .input {
-        border-color: rgba(51, 65, 85, 0.9);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
       .sub {
         font-size: 12px;
         color: rgba(71, 85, 105, 1);
@@ -265,10 +247,6 @@
           align-items: stretch;
         }
 
-        .input {
-          max-width: none;
-        }
-
         .seg {
           width: 100%;
         }
@@ -303,7 +281,6 @@
             <div id="tzHeader" class="sub"></div>
           </div>
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end">
-            <input id="filterInput" class="input" placeholder="Takım veya kanal ara…" />
             <div class="seg" role="tablist" aria-label="Spor seçimi">
               <button id="sportFootball" class="active" type="button" role="tab" aria-selected="true">Futbol</button>
               <button id="sportBasketball" type="button" role="tab" aria-selected="false">Basketbol</button>
@@ -369,7 +346,6 @@
       const PAST_THRESHOLD_MIN = 90;
 
       let currentGid = GID_FOOTBALL;
-      let filterQuery = "";
 
       function buildUrl(gid) {
         return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq&gid=${encodeURIComponent(gid)}`;
@@ -484,17 +460,12 @@
           })
           .filter(Boolean);
 
-        const q = String(filterQuery || "").trim().toLocaleLowerCase("tr-TR");
-        const filtered = q
-          ? matches.filter((m) => `${m.teams} ${m.channel}`.toLocaleLowerCase("tr-TR").includes(q))
-          : matches;
-
         const now = Date.now();
         const threshold = now - PAST_THRESHOLD_MIN * 60 * 1000;
 
         const current = [];
         const past = [];
-        for (const m of filtered) (m.date.getTime() > threshold ? current : past).push(m);
+        for (const m of matches) (m.date.getTime() > threshold ? current : past).push(m);
 
         current.sort((a, b) => a.date - b.date);
         past.sort((a, b) => a.date - b.date);
@@ -532,13 +503,6 @@
       document.getElementById("sportBasketball").addEventListener("click", () => {
         currentGid = GID_BASKETBALL;
         setSportButtons("basketball");
-        load().catch((err) => showError(err?.message || "Bir hata oluştu"));
-      });
-
-      // Filter
-      const filterEl = document.getElementById("filterInput");
-      filterEl.addEventListener("input", () => {
-        filterQuery = filterEl.value || "";
         load().catch((err) => showError(err?.message || "Bir hata oluştu"));
       });
 
